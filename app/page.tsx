@@ -74,21 +74,27 @@ const benefits = [
 const steps = [
   {
     number: "01",
-    title: "Start with a conversation",
+    title: "Expert Advice",
     description:
-      "Tell us what you're hoping to accomplish. We'll ask the right questions and learn what matters most to you.",
+      "With years of experience, our team ensures you get the best mortgage rates and terms.",
   },
   {
     number: "02",
-    title: "Build your strategy",
+    title: "Personalized Solutions",
     description:
-      "We'll walk through your financing options and explain the numbers in plain language so you can make an informed decision.",
+      "We understand that every client is unique, and we’re committed to finding what works for you.",
   },
   {
     number: "03",
-    title: "Move forward confidently",
+    title: "Streamlined Process",
     description:
-      "Once you've chosen your path, we'll help keep the process organized, transparent, and moving toward closing.",
+      "From application to approval, we make the mortgage journey seamless and stress-free.",
+  },
+    {
+    number: "04",
+    title: "Unbeatable Rates",
+    description:
+      "We’re dedicated to securing the best rates and terms for your financial needs.",
   },
 ];
 
@@ -239,15 +245,13 @@ export default function HomePage() {
 
         {/* Description */}
         <p className="mt-8 max-w-2xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8 lg:text-xl">
-          Mortgage decisions are important. They should also feel
-          understandable. We combine smart financing strategies with
-          personal guidance so you can move forward with confidence.
+          We specialize in providing tailored mortgage solutions that fit your unique needs. Whether you’re buying your first home, upgrading, or refinancing, we’ve got you covered.
         </p>
 
         {/* Buttons */}
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/contact?booking=true"
+            href="https://scheduler.zoom.us/preye-ukeko/mortgage-planning"
             className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-[#f1b900] px-7 py-4 font-black text-[#071a31] shadow-[0_15px_45px_rgba(241,185,0,0.25)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#ffc928] hover:shadow-[0_20px_55px_rgba(241,185,0,0.35)]"
           >
             Book a Free Call
@@ -375,39 +379,74 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* WHY US */}
-      <section className="bg-slate-50 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <Reveal>
-            <SectionHeading
-              eyebrow="Why The Preferred Mortgage"
-              title="A better mortgage experience starts with better guidance."
-              description="We believe the best mortgage experience combines expertise with humanity. You deserve both."
-            />
-          </Reveal>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {benefits.map((benefit) => (
-              <Reveal key={benefit}>
-                <div className="flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f1b900]/15">
-                    <Check className="h-5 w-5 text-[#9b7200]" />
-                  </div>
+{/* WHY US */}
+<section className="bg-slate-50 py-20 sm:py-28">
+  <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+    <Reveal>
+      <SectionHeading
+        eyebrow="Why The Preferred Mortgage"
+        title="A better mortgage experience starts with better guidance."
+        description="We believe the best mortgage experience combines expertise with humanity. You deserve both."
+      />
+    </Reveal>
 
-                  <div>
-                    <p className="font-bold text-[#071a31]">{benefit}</p>
+    <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {[
+        {
+          title: "Personalized guidance",
+          description:
+            "Your mortgage strategy should reflect your goals, financial position, timeline and plans for the future."
+        },
+        {
+          title: "Clear communication",
+          description:
+            "We explain the important details in straightforward language so you always understand what is happening."
+        },
+        {
+          title: "Thoughtful strategy",
+          description:
+            "We look beyond a single rate to help you consider the bigger picture and choose an approach that fits."
+        },
+        {
+          title: "Responsive support",
+          description:
+            "Questions can come up at any stage, which is why we stay available and keep you informed along the way."
+        },
+        {
+          title: "Transparent process",
+          description:
+            "Know what to expect, what information is needed and what comes next without unnecessary surprises."
+        },
+        {
+          title: "Long-term perspective",
+          description:
+            "We help you think beyond closing so your mortgage decision supports the broader financial goals you are working toward."
+        }
+      ].map((benefit, index) => (
+        <Reveal key={benefit.title} delay={index * 0.05}>
+          <div className="flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f1b900]/15">
+              <Check className="h-5 w-5 text-[#9b7200]" />
+            </div>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Thoughtful support designed to keep your mortgage journey
-                      moving forward.
-                    </p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+            <div>
+              <p className="font-bold text-[#071a31]">
+                {benefit.title}
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                {benefit.description}
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </Reveal>
+      ))}
+    </div>
+  </div>
+</section>
+
+
 
       {/* SERVICES */}
       <section className="bg-white py-20 sm:py-28">
@@ -523,7 +562,7 @@ export default function HomePage() {
           <Reveal>
             <SectionHeading
               eyebrow="How It Works"
-              title="A simple process. A thoughtful experience."
+              title="Why Choose The Preferred Mortgage?"
               description="Mortgage financing doesn't have to feel mysterious. We break the journey into clear steps so you always know what comes next."
               align="center"
             />
