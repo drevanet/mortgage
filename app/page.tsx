@@ -177,102 +177,128 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
 
-{/* HERO */}
-<section className="relative isolate min-h-[720px] overflow-hidden bg-[#071a31] lg:min-h-[800px]">
-  {/* Background Image */}
+
+{/* PREMIUM HERO */}
+<section className="relative isolate min-h-[720px] overflow-hidden bg-[#071a31] sm:min-h-[780px] lg:min-h-[820px]">
+  {/* Background image */}
   <div className="absolute inset-0">
     <Image
       src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=2200&q=90"
       alt="Beautiful modern home"
       fill
       priority
-      sizes="100vw"
       className="object-cover object-center"
     />
 
-    {/* Premium image treatment */}
+    {/* Deep premium overlays */}
     <div className="absolute inset-0 bg-[#071a31]/55" />
 
     <div className="absolute inset-0 bg-gradient-to-r from-[#071a31] via-[#071a31]/85 to-[#071a31]/35" />
 
     <div className="absolute inset-0 bg-gradient-to-t from-[#071a31] via-transparent to-[#071a31]/20" />
+
+    {/* Glossy gold light */}
+    <div className="absolute -left-32 top-1/4 h-[420px] w-[420px] rounded-full bg-[#f1b900]/10 blur-[120px]" />
+
+    <div className="absolute right-[-120px] top-[-100px] h-[420px] w-[420px] rounded-full bg-white/10 blur-[130px]" />
   </div>
 
-  {/* Decorative glow */}
-  <div className="pointer-events-none absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-[#f1b900]/10 blur-3xl" />
+  {/* Subtle glass grid */}
+  <div
+    className="pointer-events-none absolute inset-0 opacity-[0.07]"
+    style={{
+      backgroundImage:
+        "linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px)",
+      backgroundSize: "80px 80px",
+    }}
+  />
 
-  <div className="relative mx-auto flex min-h-[720px] max-w-[1600px] items-center px-5 py-24 sm:px-8 sm:py-28 lg:min-h-[800px] lg:px-12 lg:py-32 xl:px-16">
+  {/* Content */}
+  <div className="relative mx-auto flex min-h-[720px] max-w-[1600px] items-center px-5 py-24 sm:min-h-[780px] sm:px-8 lg:min-h-[820px] lg:px-12 xl:px-16">
     <Reveal>
       <div className="max-w-4xl">
+        {/* Glass badge */}
+        <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/[0.10] px-4 py-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f1b900] text-[#071a31] shadow-[0_0_25px_rgba(241,185,0,0.35)]">
+            <Sparkles className="h-3.5 w-3.5" />
+          </span>
 
-        {/* Eyebrow */}
-        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur-md">
-          <Sparkles className="h-4 w-4 text-[#f1b900]" />
-          <span>Mortgage guidance built around you</span>
+          <span className="text-sm font-bold tracking-wide text-white">
+            Mortgage guidance built around you
+          </span>
         </div>
 
         {/* Heading */}
-        <h1 className="max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.045em] text-white sm:text-6xl md:text-7xl lg:text-[88px]">
+        <h1 className="max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-[88px]">
           A clearer path to the{" "}
-          <span className="text-[#f1b900]">home you want.</span>
+          <span className="relative inline-block text-[#f1b900]">
+            home you want.
+            <span className="absolute -bottom-2 left-0 h-[3px] w-2/3 rounded-full bg-gradient-to-r from-[#f1b900] to-transparent opacity-70" />
+          </span>
         </h1>
 
         {/* Description */}
-        <p className="mt-7 max-w-2xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8 lg:text-xl">
+        <p className="mt-8 max-w-2xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8 lg:text-xl">
           Mortgage decisions are important. They should also feel
           understandable. We combine smart financing strategies with
           personal guidance so you can move forward with confidence.
         </p>
 
-        {/* CTA */}
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+        {/* Buttons */}
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/contact?booking=true"
-            className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#f1b900] px-7 py-4 font-black text-[#071a31] shadow-[0_15px_35px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-1 hover:bg-[#ffc928] hover:shadow-[0_20px_45px_rgba(0,0,0,0.3)]"
+            className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-[#f1b900] px-7 py-4 font-black text-[#071a31] shadow-[0_15px_45px_rgba(241,185,0,0.25)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#ffc928] hover:shadow-[0_20px_55px_rgba(241,185,0,0.35)]"
           >
             Book a Free Call
 
-            <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#071a31]/10 transition-transform duration-300 group-hover:translate-x-1">
+              <ArrowRight className="h-4 w-4" />
+            </span>
           </Link>
 
           <Link
             href="/mortgage-calculator"
-            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/25 bg-white/[0.08] px-7 py-4 font-bold text-white backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/40 hover:bg-white/[0.15]"
+            className="group inline-flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 font-bold text-white shadow-[0_10px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-white/[0.14]"
           >
             Calculate Your Payment
+
+            <ArrowRight className="h-4 w-4 text-[#f1b900] transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
 
-        {/* Trust Points */}
-        <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-white/10 pt-6 text-sm text-white/65">
-          <span className="flex items-center gap-2">
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-[#f1b900]/15">
-              <Check className="h-3.5 w-3.5 text-[#f1b900]" />
-            </span>
-            Personalized guidance
-          </span>
+        {/* Trust points */}
+        <div className="mt-10 flex flex-wrap gap-x-7 gap-y-4">
+          {[
+            "Personalized guidance",
+            "Clear communication",
+            "No-pressure conversations",
+          ].map((item) => (
+            <div
+              key={item}
+              className="flex items-center gap-2.5 text-sm font-medium text-white/70"
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[#f1b900]/40 bg-[#f1b900]/10">
+                <Check className="h-3 w-3 text-[#f1b900]" />
+              </span>
 
-          <span className="flex items-center gap-2">
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-[#f1b900]/15">
-              <Check className="h-3.5 w-3.5 text-[#f1b900]" />
-            </span>
-            Clear communication
-          </span>
-
-          <span className="flex items-center gap-2">
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-[#f1b900]/15">
-              <Check className="h-3.5 w-3.5 text-[#f1b900]" />
-            </span>
-            No-pressure conversations
-          </span>
+              {item}
+            </div>
+          ))}
         </div>
       </div>
     </Reveal>
   </div>
+
+  {/* Bottom glass fade */}
+  <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#071a31] to-transparent" />
+
+  {/* Decorative glossy line */}
+  <div className="absolute bottom-0 left-1/2 h-px w-[85%] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 </section>
 
 
-This keeps your existing messaging and links, but gives the hero a more **high-end mortgage/financial brand** appearance with better image treatment, hierarchy, responsive sizing, and CTA interactions.
+
 
 
       {/* TRUST STRIP */}

@@ -4,13 +4,15 @@
 import { useMemo, useState } from "react";
 import {
   Calculator as CalcIcon,
-  Mail,
-  Send,
   CheckCircle2,
   Home,
+  Mail,
   Percent,
+  Send,
   ShieldCheck,
 } from "lucide-react";
+
+const TERM_OPTIONS = [5, 10, 15, 20, 25, 30];
 
 export default function MortgageCalculator() {
   const [price, setPrice] = useState(450000);
@@ -23,334 +25,358 @@ export default function MortgageCalculator() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
 
-  const money = (value: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(Math.max(0, value));
-
   const calculations = useMemo(() => {
-    const loanAmount = Math.max(0, price - down);
+    const loanAmount = Math.max(price - down, 0);
     const monthlyRate = rate / 100 / 12;
     const numberOfPayments = term * 12;
 
-    const principalAndInterest =
-      loanAmount === 0
-        ? 0
-        : monthlyRate === 0
-          ? loanAmount / numberOfPayments
-          : (loanAmount *
-              (monthlyRate *
-                Math.pow(1 + monthlyRate, numberOfPayments))) /
-            (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+    const principalInterest =
+      loanAmount > 0 && monthlyRate > 0
+        ? loanAmount *
+          (monthlyRate *
+            Math.pow(1 + monthlyRate, numberOfPayments)) /
+          (Math.pow(1 + monthlyRate, numberOfPayments) - 1)
+        : loanAmount / Math.max(numberOfPayments, 1);
 
     const monthlyTaxes = taxes / 12;
     const monthlyInsurance = insurance / 12;
 
-    const total =
-      principalAndInterest +
+    const totalMonthly =
+      principalInterest +
       monthlyTaxes +
       monthlyInsurance +
       hoa;
 
     return {
       loanAmount,
-      principalAndInterest,
+      principalInterest,
       monthlyTaxes,
       monthlyInsurance,
-      total,
+      hoa,
+      totalMonthly,
     };
-  }, [price, down, term, taxes, insurance, hoa, rate]);
+  }, [price, term, down, taxes, insurance, hoa, rate]);
 
-  const percentageDown =
-    price > 0 ? Math.min(100, (down / price) * 100) : 0;
+  const money = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const moneyWithDecimals = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+
+  const handleNumberChange = (
+    value: string,
+    setter: (value: number) => void
+  ) => {
+    const numeric = Number(value.replace(/[^0-9.]/g, ""));
+
+    setter(Number.isFinite(numeric) ? numeric : 0);
+  };
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email.trim()) return;
+
+    setSent(true);
+  };
 
   return (
-    <div className="w-full overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_25px_70px_rgba(7,26,49,0.12)]">
-      <div className="grid lg:grid-cols-[1.12fr_.88fr]">
-
-        {/* LEFT — CALCULATOR */}
-        <div className="bg-[#071a31] p-6 sm:p-8 lg:p-12">
-
-          {/* Header */}
-          <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f1b900] text-[#071a31] shadow-lg shadow-black/10">
-              <CalcIcon size={21} />
-            </div>
-
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f1b900]">
-                Mortgage Calculator
-              </p>
-
-              <p className="mt-1 text-xs text-white/45">
-                Adjust the numbers to explore your options.
-              </p>
-            </div>
-          </div>
-
-          <h3 className="mt-8 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
-            Build a payment that fits your plan.
-          </h3>
-
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">
-            Quickly estimate your monthly payment and explore different
-            purchase scenarios before speaking with a mortgage professional.
-          </p>
-
-          {/* Purchase Price */}
-          <div className="mt-9 rounded-2xl border border-white/10 bg-white/[0.055] p-5 transition hover:border-white/15">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wider text-white/45">
-                  Purchase Price
-                </p>
-
-                <div className="mt-1 flex items-center">
-                  <span className="text-xl font-bold text-white">$</span>
-
-                  <input
-                    type="number"
-                    value={price}
-                    min={0}
-                    onChange={(e) =>
-                      setPrice(Math.max(0, Number(e.target.value) || 0))
-                    }
-                    className="w-full bg-transparent pl-1 text-2xl font-black text-white outline-none"
-                  />
-                </div>
+    <section
+      id="calculator"
+      className="w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_25px_80px_rgba(7,26,49,0.12)]"
+    >
+      <div className="grid lg:grid-cols-[1.15fr_.85fr]">
+        {/* LEFT SIDE */}
+        <div className="bg-white p-6 sm:p-8 lg:p-10">
+          <div className="mb-8">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#071a31] text-[#f1b900]">
+                <CalcIcon className="h-5 w-5" />
               </div>
 
-              <Home className="shrink-0 text-white/25" size={22} />
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f1b900]">
+                  Estimate Your Payment
+                </p>
+                <h3 className="mt-1 text-xl font-black text-[#071a31]">
+                  Mortgage Calculator
+                </h3>
+              </div>
             </div>
+
+            <p className="max-w-xl text-sm leading-6 text-slate-500">
+              Adjust the numbers below to estimate your monthly mortgage
+              payment.
+            </p>
           </div>
 
-          {/* Sliders */}
-          <SliderField
-            label="Down Payment"
-            value={down}
-            min={0}
-            max={price || 1}
-            step={5000}
-            display={money(down)}
-            onChange={setDown}
-            helper={`${percentageDown.toFixed(0)}% of purchase price`}
-          />
+          <div className="space-y-7">
+            {/* PURCHASE PRICE */}
+            <div>
+              <FieldHeader
+                icon={<Home className="h-4 w-4" />}
+                label="Purchase Price"
+              />
 
-          <SliderField
-            label="Interest Rate"
-            value={rate}
-            min={1}
-            max={12}
-            step={0.125}
-            display={`${rate.toFixed(3)}%`}
-            onChange={setRate}
-            helper="Estimated fixed interest rate"
-            icon={<Percent size={17} />}
-          />
+              <div className="relative mt-3">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                  $
+                </span>
 
-          <SliderField
-            label="Annual Property Taxes"
-            value={taxes}
-            min={0}
-            max={30000}
-            step={300}
-            display={money(taxes)}
-            onChange={setTaxes}
-            helper="Estimated annual property taxes"
-          />
+                <input
+                  type="number"
+                  min="0"
+                  value={price}
+                  onChange={(e) =>
+                    handleNumberChange(e.target.value, setPrice)
+                  }
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-9 pr-4 text-lg font-bold text-[#071a31] outline-none transition focus:border-[#f1b900] focus:bg-white focus:ring-4 focus:ring-[#f1b900]/10"
+                />
+              </div>
+            </div>
 
-          {/* Insurance + HOA */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <InputField
-              label="Annual Insurance"
+            {/* DOWN PAYMENT */}
+            <SliderField
+              label="Down Payment"
+              value={down}
+              min={0}
+              max={Math.max(price, 1)}
+              step={1000}
+              prefix="$"
+              onChange={setDown}
+            />
+
+            {/* INTEREST RATE */}
+            <SliderField
+              label="Interest Rate"
+              value={rate}
+              min={0}
+              max={15}
+              step={0.05}
+              suffix="%"
+              decimals={2}
+              onChange={setRate}
+            />
+
+            {/* ANNUAL TAXES */}
+            <SliderField
+              label="Annual Property Taxes"
+              value={taxes}
+              min={0}
+              max={30000}
+              step={100}
+              prefix="$"
+              onChange={setTaxes}
+            />
+
+            {/* INSURANCE */}
+            <EditableField
+              label="Annual Home Insurance"
               value={insurance}
+              prefix="$"
               onChange={setInsurance}
             />
 
-            <InputField
+            {/* HOA */}
+            <EditableField
               label="Monthly HOA"
               value={hoa}
+              prefix="$"
               onChange={setHoa}
             />
+
+            {/* TERM */}
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <FieldHeader
+                  icon={<ShieldCheck className="h-4 w-4" />}
+                  label="Mortgage Term"
+                />
+
+                <span className="rounded-full bg-[#071a31] px-3 py-1 text-xs font-bold text-white">
+                  {term} years
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {TERM_OPTIONS.map((years) => {
+                  const active = term === years;
+
+                  return (
+                    <button
+                      key={years}
+                      type="button"
+                      onClick={() => setTerm(years)}
+                      className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+                        active
+                          ? "border-[#f1b900] bg-[#f1b900] text-[#071a31] shadow-sm"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-[#f1b900]/60 hover:bg-slate-50"
+                      }`}
+                    >
+                      {years}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          {/* Mortgage Term */}
-          <div className="mt-8">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-white/45">
-                Mortgage Term
-              </p>
-
-              <span className="text-sm font-black text-[#f1b900]">
-                {term} years
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-              {[5, 10, 15, 20, 25, 30].map((years) => (
-                <button
-                  key={years}
-                  type="button"
-                  onClick={() => setTerm(years)}
-                  className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition-all ${
-                    term === years
-                      ? "border-[#f1b900] bg-[#f1b900] text-[#071a31] shadow-[0_8px_20px_rgba(241,185,0,0.18)]"
-                      : "border-white/10 bg-white/[0.045] text-white/60 hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
-                  }`}
-                >
-                  {years} yr
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Disclaimer */}
-          <div className="mt-8 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-            <ShieldCheck
-              size={18}
-              className="mt-0.5 shrink-0 text-[#f1b900]"
-            />
-
-            <p className="text-xs leading-5 text-white/40">
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs leading-5 text-slate-500">
               This calculator provides an estimate for planning purposes only.
-              Your actual payment may vary based on loan type, credit,
-              property, taxes, insurance and other factors.
+              Actual mortgage payments may vary based on your lender, credit
+              profile, property, loan program, and other costs.
             </p>
           </div>
         </div>
 
-        {/* RIGHT — RESULTS */}
-        <div className="flex flex-col bg-[#f8fafc] p-6 sm:p-8 lg:p-12">
-
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
-              Estimated monthly payment
+        {/* RIGHT SIDE */}
+        <div className="border-t border-slate-200 bg-white p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
+          <div className="rounded-[24px] bg-[#071a31] p-6 text-white sm:p-8">
+            <p className="text-sm font-semibold text-white/60">
+              Estimated Monthly Payment
             </p>
 
-            <div className="mt-3 flex flex-wrap items-end gap-2">
-              <span className="text-5xl font-black tracking-[-0.045em] text-[#071a31] sm:text-6xl">
-                {money(calculations.total)}
-              </span>
-
-              <span className="pb-2 text-sm font-bold text-slate-400">
-                / month
-              </span>
+            <div className="mt-2 text-4xl font-black tracking-tight text-[#f1b900] sm:text-5xl">
+              {moneyWithDecimals(calculations.totalMonthly)}
             </div>
 
-            <div className="mt-6 h-px bg-slate-200" />
+            <p className="mt-2 text-sm text-white/50">
+              Based on the information you entered
+            </p>
 
-            {/* Breakdown */}
-            <div className="mt-6 space-y-4">
+            <div className="my-7 h-px bg-white/10" />
+
+            <div className="space-y-4">
               <PaymentRow
                 label="Principal & Interest"
-                value={calculations.principalAndInterest}
+                value={money(calculations.principalInterest)}
               />
 
               <PaymentRow
                 label="Property Taxes"
-                value={calculations.monthlyTaxes}
+                value={money(calculations.monthlyTaxes)}
               />
 
               <PaymentRow
                 label="Home Insurance"
-                value={calculations.monthlyInsurance}
+                value={money(calculations.monthlyInsurance)}
               />
 
               <PaymentRow
                 label="HOA"
-                value={hoa}
+                value={money(calculations.hoa)}
               />
             </div>
 
-            {/* Loan Summary */}
-            <div className="mt-8 rounded-2xl bg-[#071a31] p-5 shadow-[0_15px_35px_rgba(7,26,49,0.12)]">
-              <div className="flex items-center justify-between gap-6">
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-white/40">
-                    Estimated loan amount
-                  </p>
+            <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm text-white/60">
+                  Estimated Loan Amount
+                </span>
 
-                  <p className="mt-1 text-2xl font-black text-white">
-                    {money(calculations.loanAmount)}
-                  </p>
-                </div>
+                <span className="font-black text-white">
+                  {money(calculations.loanAmount)}
+                </span>
+              </div>
 
-                <div className="text-right">
-                  <p className="text-xs uppercase tracking-wider text-white/40">
-                    Rate
-                  </p>
+              <div className="mt-3 flex items-center justify-between gap-4">
+                <span className="text-sm text-white/60">
+                  Interest Rate
+                </span>
 
-                  <p className="mt-1 text-lg font-black text-[#f1b900]">
-                    {rate.toFixed(3)}%
-                  </p>
-                </div>
+                <span className="font-black text-white">
+                  {rate.toFixed(2)}%
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Email */}
-          <div className="mt-auto pt-8">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm font-black text-[#071a31]">
-                Want a copy of your estimate?
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Enter your email and keep your payment estimate handy.
-              </p>
-
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <div className="relative min-w-0 flex-1">
-                  <Mail
-                    className="absolute left-3 top-3.5 text-slate-400"
-                    size={17}
-                  />
-
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setSent(false);
-                    }}
-                    placeholder="you@example.com"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#071a31] focus:bg-white"
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (email.includes("@")) {
-                      setSent(true);
-                    }
-                  }}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#f1b900] px-5 text-sm font-black text-[#071a31] transition hover:bg-[#dca900]"
-                >
-                  <Send size={16} />
-                  Send Estimate
-                </button>
+          {/* EMAIL RESULTS */}
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#071a31] shadow-sm">
+                <Mail className="h-4 w-4" />
               </div>
 
-              {sent && (
-                <p className="mt-3 flex items-center gap-2 text-xs font-bold text-emerald-600">
-                  <CheckCircle2 size={15} />
-                  Your estimate is ready to be sent.
+              <div>
+                <h4 className="font-bold text-[#071a31]">
+                  Send me this estimate
+                </h4>
+
+                <p className="mt-1 text-sm leading-5 text-slate-500">
+                  Enter your email to save your estimated payment.
                 </p>
-              )}
+              </div>
             </div>
+
+            <form onSubmit={handleEmailSubmit} className="mt-4">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setSent(false);
+                  }}
+                  placeholder="you@example.com"
+                  className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-[#071a31] outline-none transition placeholder:text-slate-400 focus:border-[#f1b900] focus:ring-4 focus:ring-[#f1b900]/10"
+                />
+
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#f1b900] px-5 py-3 text-sm font-black text-[#071a31] transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <Send className="h-4 w-4" />
+                  Send
+                </button>
+              </div>
+            </form>
+
+            {sent && (
+              <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-emerald-600">
+                <CheckCircle2 className="h-4 w-4" />
+                Estimate ready to be sent.
+              </div>
+            )}
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+/* ---------------------------------- */
+/* FIELD HEADER */
+/* ---------------------------------- */
+
+function FieldHeader({
+  icon,
+  label,
+}: {
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 text-sm font-bold text-[#071a31]">
+      <span className="text-[#f1b900]">{icon}</span>
+      {label}
     </div>
   );
 }
 
-/* -------------------------------------------------
-   PREMIUM SLIDER
--------------------------------------------------- */
+/* ---------------------------------- */
+/* SLIDER + EDITABLE INPUT */
+/* ---------------------------------- */
 
 function SliderField({
   label,
@@ -358,100 +384,121 @@ function SliderField({
   min,
   max,
   step,
-  display,
-  helper,
+  prefix,
+  suffix,
+  decimals = 0,
   onChange,
-  icon,
 }: {
   label: string;
   value: number;
   min: number;
   max: number;
   step: number;
-  display: string;
-  helper: string;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
   onChange: (value: number) => void;
-  icon?: React.ReactNode;
 }) {
   const percentage =
     max > min ? ((value - min) / (max - min)) * 100 : 0;
 
+  const displayValue =
+    decimals > 0 ? value.toFixed(decimals) : Math.round(value).toString();
+
   return (
-    <div className="mt-7">
-      <div className="flex items-end justify-between gap-4">
-        <div className="min-w-0">
-          <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-white/45">
-            {icon}
-            {label}
-          </p>
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <FieldHeader
+          icon={<Percent className="h-4 w-4" />}
+          label={label}
+        />
 
-          <p className="mt-1 text-xs text-white/30">
-            {helper}
-          </p>
+        <div className="relative w-36">
+          {prefix && (
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
+              {prefix}
+            </span>
+          )}
+
+          <input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            value={displayValue}
+            onChange={(e) => {
+              const numeric = Number(e.target.value);
+
+              if (!Number.isFinite(numeric)) {
+                onChange(0);
+                return;
+              }
+
+              onChange(Math.min(Math.max(numeric, min), max));
+            }}
+            className={`w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-right text-sm font-black text-[#071a31] outline-none transition focus:border-[#f1b900] focus:bg-white focus:ring-4 focus:ring-[#f1b900]/10 ${
+              prefix ? "pl-7 pr-8" : "px-3"
+            }`}
+          />
+
+          {suffix && (
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
+              {suffix}
+            </span>
+          )}
         </div>
-
-        <span className="shrink-0 text-lg font-black text-white">
-          {display}
-        </span>
       </div>
 
-      {/* Slider */}
-      <div className="relative mt-5 h-8">
+      <div className="relative flex h-8 items-center">
         {/* Track */}
-        <div
-          className="pointer-events-none absolute left-0 right-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-white/10"
-        />
+        <div className="absolute left-0 right-0 h-1.5 overflow-hidden rounded-full bg-slate-200">
+          <div
+            className="h-full rounded-full bg-[#f1b900]"
+            style={{
+              width: `${Math.min(Math.max(percentage, 0), 100)}%`,
+            }}
+          />
+        </div>
 
-        {/* Filled track */}
-        <div
-          className="pointer-events-none absolute left-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-[#f1b900]"
-          style={{ width: `${percentage}%` }}
-        />
-
-        {/* Native range input */}
+        {/* Slider */}
         <input
           type="range"
           min={min}
           max={max}
           step={step}
-          value={value}
+          value={Math.min(Math.max(value, min), max)}
           onChange={(e) => onChange(Number(e.target.value))}
+          className="mortgage-slider relative z-10 w-full cursor-pointer appearance-none bg-transparent"
           aria-label={label}
-          className="mortgage-slider absolute inset-0 z-10 m-0 h-8 w-full cursor-pointer appearance-none bg-transparent p-0"
-          style={{
-            "--slider-progress": `${percentage}%`,
-          } as React.CSSProperties}
         />
       </div>
 
-      <div className="mt-1 flex justify-between text-[10px] font-bold text-white/25">
+      <div className="mt-1 flex justify-between text-[11px] font-medium text-slate-400">
         <span>
-          {label === "Interest Rate" ? `${min}%` : "$0"}
+          {prefix}
+          {min.toLocaleString()}
+          {suffix}
         </span>
 
         <span>
-          {label === "Interest Rate"
-            ? `${max}%`
-            : moneyShort(max)}
+          {prefix}
+          {max.toLocaleString()}
+          {suffix}
         </span>
       </div>
 
-      {/* Custom slider styling */}
       <style jsx>{`
         .mortgage-slider::-webkit-slider-runnable-track {
           height: 6px;
           background: transparent;
-          border: none;
         }
 
         .mortgage-slider::-moz-range-track {
           height: 6px;
           background: transparent;
-          border: none;
         }
 
         .mortgage-slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
           appearance: none;
           width: 22px;
           height: 22px;
@@ -459,31 +506,26 @@ function SliderField({
           border-radius: 9999px;
           border: 4px solid #071a31;
           background: #f1b900;
-          box-shadow:
-            0 0 0 2px rgba(241, 185, 0, 0.95),
-            0 4px 12px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 2px 8px rgba(7, 26, 49, 0.2);
           cursor: grab;
         }
 
         .mortgage-slider::-webkit-slider-thumb:active {
           cursor: grabbing;
-          transform: scale(1.08);
         }
 
         .mortgage-slider::-moz-range-thumb {
-          width: 14px;
-          height: 14px;
+          width: 22px;
+          height: 22px;
           border-radius: 9999px;
           border: 4px solid #071a31;
           background: #f1b900;
-          box-shadow:
-            0 0 0 2px rgba(241, 185, 0, 0.95),
-            0 4px 12px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 2px 8px rgba(7, 26, 49, 0.2);
           cursor: grab;
         }
 
-        .mortgage-slider::-moz-range-progress {
-          background: transparent;
+        .mortgage-slider::-moz-range-thumb:active {
+          cursor: grabbing;
         }
 
         .mortgage-slider:focus-visible {
@@ -492,101 +534,88 @@ function SliderField({
 
         .mortgage-slider:focus-visible::-webkit-slider-thumb {
           box-shadow:
-            0 0 0 3px rgba(255, 255, 255, 0.85),
-            0 0 0 6px rgba(241, 185, 0, 0.55);
+            0 0 0 4px rgba(241, 185, 0, 0.2),
+            0 2px 8px rgba(7, 26, 49, 0.2);
         }
 
         .mortgage-slider:focus-visible::-moz-range-thumb {
           box-shadow:
-            0 0 0 3px rgba(255, 255, 255, 0.85),
-            0 0 0 6px rgba(241, 185, 0, 0.55);
+            0 0 0 4px rgba(241, 185, 0, 0.2),
+            0 2px 8px rgba(7, 26, 49, 0.2);
         }
       `}</style>
     </div>
   );
 }
 
-/* -------------------------------------------------
-   INPUT
--------------------------------------------------- */
+/* ---------------------------------- */
+/* NORMAL EDITABLE FIELD */
+/* ---------------------------------- */
 
-function InputField({
+function EditableField({
   label,
   value,
+  prefix,
   onChange,
 }: {
   label: string;
   value: number;
+  prefix?: string;
   onChange: (value: number) => void;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold text-white/45">
-        {label}
-      </span>
+    <div>
+      <div className="mb-3">
+        <FieldHeader
+          icon={<Home className="h-4 w-4" />}
+          label={label}
+        />
+      </div>
 
-      <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.05] px-4 transition focus-within:border-[#f1b900] focus-within:bg-white/[0.08]">
-        <span className="text-sm font-bold text-white/30">
-          $
-        </span>
+      <div className="relative">
+        {prefix && (
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+            {prefix}
+          </span>
+        )}
 
         <input
           type="number"
-          min={0}
+          min="0"
           value={value}
-          onChange={(e) =>
-            onChange(Math.max(0, Number(e.target.value) || 0))
-          }
-          className="w-full bg-transparent px-2 py-3 text-sm font-bold text-white outline-none"
+          onChange={(e) => {
+            const numeric = Number(e.target.value);
+
+            onChange(
+              Number.isFinite(numeric) ? Math.max(numeric, 0) : 0
+            );
+          }}
+          className={`w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 text-lg font-bold text-[#071a31] outline-none transition focus:border-[#f1b900] focus:bg-white focus:ring-4 focus:ring-[#f1b900]/10 ${
+            prefix ? "pl-9 pr-4" : "px-4"
+          }`}
         />
       </div>
-    </label>
+    </div>
   );
 }
 
-/* -------------------------------------------------
-   PAYMENT ROW
--------------------------------------------------- */
+/* ---------------------------------- */
+/* PAYMENT ROW */
+/* ---------------------------------- */
 
 function PaymentRow({
   label,
   value,
 }: {
   label: string;
-  value: number;
+  value: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3 last:border-0">
-      <span className="text-sm text-slate-500">
-        {label}
-      </span>
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-sm text-white/60">{label}</span>
 
-      <strong className="text-sm font-black text-[#071a31]">
-        {new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          maximumFractionDigits: 0,
-        }).format(Math.max(0, value))}
-      </strong>
+      <span className="text-sm font-bold text-white">{value}</span>
     </div>
   );
 }
-
-/* -------------------------------------------------
-   SHORT MONEY
--------------------------------------------------- */
-
-function moneyShort(value: number) {
-  if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(1)}M`;
-  }
-
-  if (value >= 1000) {
-    return `$${Math.round(value / 1000)}k`;
-  }
-
-  return `$${value}`;
-}
-
-
 
