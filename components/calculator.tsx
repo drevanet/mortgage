@@ -1,10 +1,482 @@
-'use client';
-import { useMemo, useState } from 'react';
-import { Calculator as CalcIcon, Mail, Send, CheckCircle2 } from 'lucide-react';
 
-export default function MortgageCalculator(){
- const [price,setPrice]=useState('450000'),[term,setTerm]=useState('30'),[down,setDown]=useState('90000'),[taxes,setTaxes]=useState('5400'),[insurance,setInsurance]=useState('1800'),[hoa,setHoa]=useState('0'),[email,setEmail]=useState(''),[sent,setSent]=useState(false);
- const monthly=useMemo(()=>{const p=Math.max(0,Number(price)-Number(down));const r=.065/12;const n=Number(term)*12;const principal=r? p*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1):p/n;return principal+Number(taxes)/12+Number(insurance)/12+Number(hoa)},[price,term,down,taxes,insurance,hoa]);
- const money=(n:number)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
- return <section className="section-pad bg-[#f4f7fb]" id="calculator"><div className="container-wide"><div className="overflow-hidden rounded-[36px] bg-[#071a31] shadow-2xl"><div className="grid lg:grid-cols-[1fr_.82fr]"><div className="p-7 sm:p-10 lg:p-12"><div className="flex items-center gap-3 text-[#f1b900]"><CalcIcon size={20}/><span className="text-xs font-black uppercase tracking-[.2em]">Mortgage calculator</span></div><h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">See what your monthly payment could look like.</h2><p className="mt-4 max-w-xl text-sm leading-7 text-white/60">Use this estimate to explore different purchase scenarios. Your actual payment may vary based on your loan, rate, property and individual circumstances.</p><div className="mt-8 grid gap-4 sm:grid-cols-2">{[["Purchase Price",price,setPrice,"e.g. 450000"],["Down Payment ($)",down,setDown,"e.g. 90000"],["Annual Taxes ($)",taxes,setTaxes,"e.g. 5400"],["Annual Insurance",insurance,setInsurance,"e.g. 1800"],["Monthly HOA",hoa,setHoa,"e.g. 250"]].map(([label,val,setter,ph])=><label key={label as string} className="block"><span className="mb-2 block text-xs font-bold text-white/60">{label as string}</span><input value={val as string} onChange={e=>(setter as React.Dispatch<React.SetStateAction<string>>)(e.target.value.replace(/[^0-9]/g,''))} placeholder={ph as string} className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-white/30 focus:border-[#f1b900]"/></label>)}<label className="block"><span className="mb-2 block text-xs font-bold text-white/60">Mortgage Term</span><select value={term} onChange={e=>setTerm(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white outline-none focus:border-[#f1b900]"><option value="30" className="text-black">30 years</option><option value="20" className="text-black">20 years</option><option value="15" className="text-black">15 years</option><option value="10" className="text-black">10 years</option></select></label></div></div><div className="bg-white p-7 sm:p-10 lg:p-12"><p className="text-xs font-black uppercase tracking-[.18em] text-slate-400">Estimated monthly payment</p><p className="mt-3 text-5xl font-black tracking-tight text-[#071a31]">{money(monthly)}</p><div className="mt-7 grid gap-3 text-sm"><div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Estimated principal & interest</span><strong>{money(Math.max(0,monthly-Number(taxes)/12-Number(insurance)/12-Number(hoa)))}</strong></div><div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Taxes</span><strong>{money(Number(taxes)/12)}</strong></div><div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Insurance</span><strong>{money(Number(insurance)/12)}</strong></div><div className="flex justify-between"><span className="text-slate-500">HOA</span><strong>{money(Number(hoa))}</strong></div></div><div className="mt-8 rounded-2xl bg-[#f4f7fb] p-4"><p className="text-sm font-black text-[#071a31]">Want a copy of the results?</p><p className="mt-1 text-xs leading-5 text-slate-500">Enter your email and we&apos;ll send your estimate.</p><div className="mt-3 flex gap-2"><div className="relative flex-1"><Mail className="absolute left-3 top-3 text-slate-400" size={16}/><input type="email" value={email} onChange={e=>{setEmail(e.target.value);setSent(false)}} placeholder="you@example.com" className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-9 pr-3 text-sm outline-none focus:border-[#071a31]"/></div><button onClick={()=>email.includes('@')&&setSent(true)} className="grid min-w-12 place-items-center rounded-xl bg-[#f1b900] text-[#071a31]" aria-label="Send result"><Send size={17}/></button></div>{sent&&<p className="mt-3 flex items-center gap-2 text-xs font-bold text-emerald-600"><CheckCircle2 size={15}/> Result ready to be sent.</p>}</div></div></div></div></div></section>
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  Calculator as CalcIcon,
+  Mail,
+  Send,
+  CheckCircle2,
+  Home,
+  Percent,
+  ShieldCheck,
+} from "lucide-react";
+
+export default function MortgageCalculator() {
+  const [price, setPrice] = useState(450000);
+  const [term, setTerm] = useState(30);
+  const [down, setDown] = useState(90000);
+  const [taxes, setTaxes] = useState(5400);
+  const [insurance, setInsurance] = useState(1800);
+  const [hoa, setHoa] = useState(0);
+  const [rate, setRate] = useState(6.5);
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+
+  const money = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(Math.max(0, value));
+
+  const calculations = useMemo(() => {
+    const loanAmount = Math.max(0, price - down);
+    const monthlyRate = rate / 100 / 12;
+    const numberOfPayments = term * 12;
+
+    const principalAndInterest =
+      loanAmount === 0
+        ? 0
+        : monthlyRate === 0
+          ? loanAmount / numberOfPayments
+          : (loanAmount *
+              (monthlyRate *
+                Math.pow(1 + monthlyRate, numberOfPayments))) /
+            (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+
+    const monthlyTaxes = taxes / 12;
+    const monthlyInsurance = insurance / 12;
+
+    const total =
+      principalAndInterest +
+      monthlyTaxes +
+      monthlyInsurance +
+      hoa;
+
+    return {
+      loanAmount,
+      principalAndInterest,
+      monthlyTaxes,
+      monthlyInsurance,
+      total,
+    };
+  }, [price, down, term, taxes, insurance, hoa, rate]);
+
+  const percentageDown =
+    price > 0 ? Math.min(100, (down / price) * 100) : 0;
+
+  return (
+    <div className="w-full overflow-hidden rounded-[32px] border border-white/10 bg-white shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
+      <div className="grid lg:grid-cols-[1.15fr_.85fr]">
+        {/* LEFT — CALCULATOR */}
+        <div className="bg-[#071a31] p-6 sm:p-8 lg:p-12">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f1b900] text-[#071a31]">
+              <CalcIcon size={21} />
+            </div>
+
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f1b900]">
+                Mortgage Calculator
+              </p>
+              <p className="mt-1 text-xs text-white/50">
+                Adjust the numbers to explore your options.
+              </p>
+            </div>
+          </div>
+
+          <h3 className="mt-8 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+            Build a payment that fits your plan.
+          </h3>
+
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">
+            Quickly estimate your monthly payment and explore different
+            purchase scenarios before speaking with a mortgage professional.
+          </p>
+
+          {/* Purchase Price */}
+          <div className="mt-9 rounded-2xl border border-white/10 bg-white/[0.045] p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-white/50">
+                  Purchase Price
+                </p>
+
+                <div className="mt-1 flex items-center">
+                  <span className="text-xl font-bold text-white">$</span>
+
+                  <input
+                    type="number"
+                    value={price}
+                    min={0}
+                    onChange={(e) =>
+                      setPrice(Math.max(0, Number(e.target.value) || 0))
+                    }
+                    className="w-full bg-transparent pl-1 text-2xl font-black text-white outline-none"
+                  />
+                </div>
+              </div>
+
+              <Home className="shrink-0 text-white/30" size={22} />
+            </div>
+          </div>
+
+          {/* Down Payment Slider */}
+          <SliderField
+            label="Down Payment"
+            value={down}
+            min={0}
+            max={price || 1}
+            step={5000}
+            display={money(down)}
+            onChange={setDown}
+            helper={`${percentageDown.toFixed(0)}% of purchase price`}
+          />
+
+          {/* Interest Rate Slider */}
+          <SliderField
+            label="Interest Rate"
+            value={rate}
+            min={1}
+            max={12}
+            step={0.125}
+            display={`${rate.toFixed(3)}%`}
+            onChange={setRate}
+            helper="Estimated fixed interest rate"
+            icon={<Percent size={17} />}
+          />
+
+          {/* Annual Taxes Slider */}
+          <SliderField
+            label="Annual Property Taxes"
+            value={taxes}
+            min={0}
+            max={30000}
+            step={300}
+            display={money(taxes)}
+            onChange={setTaxes}
+            helper="Estimated annual property taxes"
+          />
+
+          {/* Insurance + HOA */}
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <InputField
+              label="Annual Insurance"
+              value={insurance}
+              onChange={setInsurance}
+            />
+
+            <InputField
+              label="Monthly HOA"
+              value={hoa}
+              onChange={setHoa}
+            />
+          </div>
+
+          {/* Mortgage Term */}
+          <div className="mt-7">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-white/50">
+                Mortgage Term
+              </p>
+
+              <span className="text-sm font-black text-[#f1b900]">
+                {term} years
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {[5, 10, 15, 20, 25, 30].map((years) => (
+                <button
+                  key={years}
+                  type="button"
+                  onClick={() => setTerm(years)}
+                  className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition ${
+                    term === years
+                      ? "border-[#f1b900] bg-[#f1b900] text-[#071a31]"
+                      : "border-white/10 bg-white/[0.05] text-white/65 hover:border-white/25 hover:text-white"
+                  }`}
+                >
+                  {years} yr
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <ShieldCheck
+              size={18}
+              className="mt-0.5 shrink-0 text-[#f1b900]"
+            />
+
+            <p className="text-xs leading-5 text-white/45">
+              This calculator provides an estimate for planning purposes only.
+              Your actual payment may vary based on loan type, credit,
+              property, taxes, insurance and other factors.
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT — RESULTS */}
+        <div className="flex flex-col bg-[#f7f9fc] p-6 sm:p-8 lg:p-12">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+              Estimated monthly payment
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-end gap-2">
+              <span className="text-5xl font-black tracking-[-0.04em] text-[#071a31] sm:text-6xl">
+                {money(calculations.total)}
+              </span>
+
+              <span className="pb-2 text-sm font-bold text-slate-400">
+                / month
+              </span>
+            </div>
+
+            <div className="mt-6 h-px bg-slate-200" />
+
+            {/* Payment Breakdown */}
+            <div className="mt-6 space-y-4">
+              <PaymentRow
+                label="Principal & Interest"
+                value={calculations.principalAndInterest}
+              />
+
+              <PaymentRow
+                label="Property Taxes"
+                value={calculations.monthlyTaxes}
+              />
+
+              <PaymentRow
+                label="Home Insurance"
+                value={calculations.monthlyInsurance}
+              />
+
+              <PaymentRow label="HOA" value={hoa} />
+            </div>
+
+            {/* Loan Summary */}
+            <div className="mt-8 rounded-2xl bg-[#071a31] p-5 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-white/45">
+                    Estimated loan amount
+                  </p>
+
+                  <p className="mt-1 text-2xl font-black">
+                    {money(calculations.loanAmount)}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-xs uppercase tracking-wider text-white/45">
+                    Rate
+                  </p>
+
+                  <p className="mt-1 text-lg font-black text-[#f1b900]">
+                    {rate.toFixed(3)}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="mt-auto pt-8">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-sm font-black text-[#071a31]">
+                Want a copy of your estimate?
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Enter your email and keep your payment estimate handy.
+              </p>
+
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <div className="relative min-w-0 flex-1">
+                  <Mail
+                    className="absolute left-3 top-3.5 text-slate-400"
+                    size={17}
+                  />
+
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setSent(false);
+                    }}
+                    placeholder="you@example.com"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#071a31] focus:bg-white"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (email.includes("@")) {
+                      setSent(true);
+                    }
+                  }}
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#f1b900] px-5 text-sm font-black text-[#071a31] transition hover:bg-[#dca900]"
+                >
+                  <Send size={16} />
+                  Send Estimate
+                </button>
+              </div>
+
+              {sent && (
+                <p className="mt-3 flex items-center gap-2 text-xs font-bold text-emerald-600">
+                  <CheckCircle2 size={15} />
+                  Your estimate is ready to be sent.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
+
+function SliderField({
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  helper,
+  onChange,
+  icon,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  display: string;
+  helper: string;
+  onChange: (value: number) => void;
+  icon?: React.ReactNode;
+}) {
+  const percentage =
+    max > min ? ((value - min) / (max - min)) * 100 : 0;
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-white/50">
+            {icon}
+            {label}
+          </p>
+
+          <p className="mt-1 text-xs text-white/35">{helper}</p>
+        </div>
+
+        <span className="shrink-0 text-lg font-black text-white">
+          {display}
+        </span>
+      </div>
+
+      <div className="relative mt-4">
+        <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-white/10" />
+
+        <div
+          className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#f1b900]"
+          style={{ width: `${percentage}%` }}
+        />
+
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          aria-label={label}
+          className="relative z-10 h-8 w-full cursor-pointer appearance-none bg-transparent accent-[#f1b900]"
+        />
+      </div>
+
+      <div className="flex justify-between text-[10px] font-bold text-white/25">
+        <span>{label === "Interest Rate" ? `${min}%` : "$0"}</span>
+
+        <span>
+          {label === "Interest Rate" ? `${max}%` : moneyShort(max)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-xs font-bold text-white/50">
+        {label}
+      </span>
+
+      <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.06] px-4 focus-within:border-[#f1b900]">
+        <span className="text-sm font-bold text-white/35">$</span>
+
+        <input
+          type="number"
+          min={0}
+          value={value}
+          onChange={(e) =>
+            onChange(Math.max(0, Number(e.target.value) || 0))
+          }
+          className="w-full bg-transparent px-2 py-3 text-sm font-bold text-white outline-none"
+        />
+      </div>
+    </label>
+  );
+}
+
+function PaymentRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3 last:border-0">
+      <span className="text-sm text-slate-500">{label}</span>
+
+      <strong className="text-sm font-black text-[#071a31]">
+        {new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0,
+        }).format(Math.max(0, value))}
+      </strong>
+    </div>
+  );
+}
+
+function moneyShort(value: number) {
+  if (value >= 1000000) {
+    return `$${(value / 1000000).toFixed(1)}M`;
+  }
+
+  if (value >= 1000) {
+    return `$${Math.round(value / 1000)}k`;
+  }
+
+  return `$${value}`;
+}
+
