@@ -21,21 +21,25 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
       <div className="container-wide flex h-[76px] items-center justify-between gap-5">
-        {/* LOGO */}
-        <Link
-          href="/"
-          className="flex items-center"
-          onClick={() => setOpen(false)}
-        >
-          <Image
-            src="/assets/logo.png"
-            alt="The Preferred Mortgage"
-            width={190}
-            height={55}
-            priority
-            className="h-auto w-[170px] object-contain sm:w-[190px]"
-          />
-        </Link>
+
+
+{/* LOGO */}
+<Link
+  href="/"
+  className="flex items-center"
+  onClick={() => setOpen(false)}
+>
+  <Image
+    src="/assets/logo.png"
+    alt="The Preferred Mortgage"
+    width={160}
+    height={45}
+    priority
+    className="h-10 w-auto rounded-xl object-contain sm:h-11"
+  />
+</Link>
+
+
 
         {/* DESKTOP NAVIGATION */}
         <nav className="hidden items-center gap-7 lg:flex">

@@ -10,15 +10,22 @@ export default function Footer() {
         {/* Company Info column */}
         <div>
           {/* LOGO */}
-          <Link href="/" className="inline-flex items-center">
-            <Image
-              src="/assets/footers.png"
-              alt="The Preferred Mortgage"
-              width={200}
-              height={60}
-              className="h-auto w-[180px] object-contain"
-            />
-          </Link>
+      
+{/* LOGO */}
+<Link
+  href="/"
+  className="inline-flex items-center"
+>
+  <Image
+    src="/assets/footers.png"
+    alt="The Preferred Mortgage"
+    width={155}
+    height={45}
+    className="h-10 w-auto rounded-xl object-contain"
+  />
+</Link>
+
+
 
           <p className="mt-6 max-w-sm text-sm leading-7 text-white/60">
             Thoughtful mortgage guidance, clear options and a team focused on
