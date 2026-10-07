@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "assets.arsenal.com",
+        hostname: "tv.betisports.com",
         pathname: "/**",
       },
     ],

@@ -77,7 +77,7 @@ export default function Services() {
         </div>
       </section>
 
-      ```tsx
+
 <section className="section-pad">
   <div className="container-wide grid gap-5 md:grid-cols-2 lg:grid-cols-3">
     {services.map(([t, d, n], i) => {

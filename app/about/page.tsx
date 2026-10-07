@@ -126,7 +126,7 @@ export default function About() {
                   {
                    
                     <Image
-                      src="https://assets.arsenal.com/prod/images/large_landscape/89b5cd26d43f-gettyimages-612979176.webp"
+                      src="https://tv.betisports.com/wp-content/uploads/2026/10/IMG_85911-scaled.jpg"
                       alt="OWNER NAME, Owner of The Preferred Mortgage"
                       width={1000}
                       height={1200}
