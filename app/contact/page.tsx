@@ -152,7 +152,7 @@ export default function Contact() {
                   </p>
 
                   <p className="mt-1 font-bold text-[#071a31]">
-                    (000) 555-0198
+                    +1 (647) 801-1150
                   </p>
                 </div>
               </div>
@@ -184,9 +184,9 @@ export default function Contact() {
                   </p>
 
                   <p className="mt-1 font-bold text-[#071a31]">
-                    100 Preferred Avenue, Suite 200,
+                    5063 N Service Rd, Suite 100-427,
                     <br />
-                    Your City, ST 00000
+                    Burlington, ON L7L 5H6
                   </p>
                 </div>
               </div>

@@ -200,7 +200,7 @@ export default function About() {
                   {[
                     "Mortgage Agent Level 2",
                     "License #M21004689",
-                    "Mortgage Outlet Inc. #12628",
+                    "Mortgage Outlet Inc. #13691",
                     "10+ years of mortgage experience",
                   ].map((item) => (
                     <div
