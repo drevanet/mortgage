@@ -305,29 +305,39 @@ export default function HomePage() {
 
 
 
-      {/* TRUST STRIP */}
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:grid-cols-2 sm:px-8 lg:grid-cols-4 lg:px-10">
-          {[
-            ["Personal", "Guidance"],
-            ["Clear", "Communication"],
-            ["Smart", "Strategies"],
-            ["Confident", "Decisions"],
-          ].map(([first, second]) => (
-            <div
-              key={first}
-              className="flex items-center gap-4 border-slate-200 sm:border-r last:border-0"
-            >
-              <ShieldCheck className="h-7 w-7 text-[#f1b900]" />
+    {/* TRUST STRIP */}
+<section className="border-b border-slate-200 bg-white">
+  <div className="mx-auto grid max-w-7xl grid-cols-2 gap-0 px-5 py-8 sm:px-8 lg:grid-cols-4 lg:px-10">
+    {[
+      ["Personal", "Guidance"],
+      ["Clear", "Communication"],
+      ["Smart", "Strategies"],
+      ["Confident", "Decisions"],
+    ].map(([first, second], index) => (
+      <div
+        key={first}
+        className={`
+          flex items-center gap-3 px-4 py-4
+          border-slate-200
+          ${index % 2 === 0 ? "border-r" : ""}
+          ${index < 2 ? "border-b" : ""}
+          lg:border-b-0
+          lg:border-r
+          lg:px-6
+          lg:py-2
+          lg:last:border-r-0
+        `}
+      >
+        <ShieldCheck className="h-7 w-7 shrink-0 text-[#f2ba00]" />
 
-              <div>
-                <p className="font-black text-[#071a31]">{first}</p>
-                <p className="text-sm text-slate-500">{second}</p>
-              </div>
-            </div>
-          ))}
+        <div>
+          <p className="font-black text-[#071a30]">{first}</p>
+          <p className="text-sm text-slate-500">{second}</p>
         </div>
-      </section>
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* INTRO */}
       <section className="bg-white py-20 sm:py-28">
